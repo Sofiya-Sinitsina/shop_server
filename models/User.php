@@ -2,38 +2,67 @@
 
 namespace app\models;
 
-class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
+use yii\mongodb\ActiveRecord;
+use yii\validators\EmailValidator;
+use yii\validators\NumberValidator;
+use yii\validators\StringValidator;
+
+class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
+//    public $id;
+//    public $username;
+//    public $password;
+//    public $authKey;
+//    public $accessToken;
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
+    public static function collectionName(): string
+    {
+        return 'user';
+    }
 
+//    private static $users = [
+//        '100' => [
+//            'id' => '100',
+//            'username' => 'admin',
+//            'password' => 'admin',
+//            'authKey' => 'test100key',
+//            'accessToken' => '100-token',
+//        ],
+//        '101' => [
+//            'id' => '101',
+//            'username' => 'demo',
+//            'password' => 'demo',
+//            'authKey' => 'test101key',
+//            'accessToken' => '101-token',
+//        ],
+//    ];
+    public function attributes(): array
+    {
+        return [
+            '_id',
+            'login',
+            'email',
+            'password',
+            'card_num'
+        ];
+    }
+
+    public function rules(): array
+    {
+        return [
+            [['login'], StringValidator::class],
+            [['login'], 'string', 'max'=>60],
+            [['email'], EmailValidator::class],
+            [['card_num'], NumberValidator::class]
+        ];
+    }
 
     /**
      * {@inheritdoc}
      */
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return static::findOne($id);
     }
 
     /**
@@ -56,29 +85,20 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      * @param string $username
      * @return static|null
      */
-    public static function findByUsername($username)
-    {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
 
-        return null;
-    }
 
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return $this->id;
+        return (string)$this->id;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAuthKey()
+    public function getAuthKey(): ?string
     {
         return $this->authKey;
     }
@@ -86,7 +106,7 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
     /**
      * {@inheritdoc}
      */
-    public function validateAuthKey($authKey)
+    public function validateAuthKey($authKey): ?bool
     {
         return $this->authKey === $authKey;
     }
@@ -97,7 +117,7 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      * @param string $password password to validate
      * @return bool if password provided is valid for current user
      */
-    public function validatePassword($password)
+    public function validatePassword($password): bool
     {
         return $this->password === $password;
     }

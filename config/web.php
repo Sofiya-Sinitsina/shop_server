@@ -41,6 +41,10 @@ $config = [
                 ],
             ],
         ],
+        'mongodb' => [
+            'class' => '\yii\mongodb\Connection',
+            'dsn' => 'mongodb://localhost:27017/shop',
+        ],
         'db' => $db,
         /*
         'urlManager' => [

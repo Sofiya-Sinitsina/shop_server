@@ -7,6 +7,16 @@ use yii\helpers\Url;
 
 $this->title = 'Boxes';
 ?>
+
+<?php
+    $goods = new \app\models\Goods();
+    $goods->name = 'gel';
+    $goods->category = 'face';
+    $goods->price = 600;
+    $goods->description = 'kjfgskhgfhgfkgkfgkf';
+    $goods->save();
+
+?>
     <div class="carousel-inner">
         <div class="carousel-item active">
             <div class="carousel-caption d-none d-md-block text-black text-start position-absolute top-50">

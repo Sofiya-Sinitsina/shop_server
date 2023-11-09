@@ -68,9 +68,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 <input class="form-control me-2" type="search" placeholder="Поиск..." aria-label="Search">
             </form>
             <p>Бьюти-бокс месяца стоимостью 2500 руб. всего за 1000 руб.</p>
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="<?= Url::to(['cab'])?>">
                 <img src="<?= $asset->baseUrl.'/img/ph.JPG'?>" alt="Logo" width="47" height="42" class="d-inline-block align-text-top">
-                Вход
             </a>
 
         </div>
@@ -112,8 +111,10 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     <div id="f2" class="text-center">
         <h2>Коробочки</h2>
         <p>Подпишитесь для обновлений и уведомлениях об ограниченных сериях</p>
+        <form>
         <input type="text" class="form-control" id="specificSizeInputName" placeholder="Эл. почта*">
-        <button type="submit" class="btn btn-dark"><img src="<?= $asset->baseUrl.'/img/bt1.JPG'?>"></button>
+        <input type="submit" class="btn btn-dark" value="subscribe">
+        </form>
         <br><br>
     </div>
     <div id="f3" class="text-start">

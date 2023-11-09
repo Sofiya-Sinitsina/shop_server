@@ -2,11 +2,23 @@
 
 namespace app\models;
 
-use yii\mongodb\ActiveRecord;
+use helpers\ActiveRecord;
+use Yii;
+use yii\base\NotSupportedException;
 use yii\validators\EmailValidator;
 use yii\validators\NumberValidator;
 use yii\validators\StringValidator;
 
+/**
+ * class Users
+ * @package app\models
+ * @
+ * @property string $login
+ * @property string $email
+ * @property string $password
+ * @property double $card_num
+ * @property string $auth_key
+ */
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
 //    public $id;
@@ -43,7 +55,8 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
             'login',
             'email',
             'password',
-            'card_num'
+            'card_num',
+            'auth_key'
         ];
     }
 
@@ -53,6 +66,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
             [['login'], StringValidator::class],
             [['login'], 'string', 'max'=>60],
             [['email'], EmailValidator::class],
+            [['password'], StringValidator::class, 'min'=>8],
             [['card_num'], NumberValidator::class]
         ];
     }
@@ -68,31 +82,34 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     /**
      * {@inheritdoc}
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public static function findIdentityByAccessToken($token, $type = null): \yii\web\IdentityInterface|static|null
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
+//        foreach (self::$users as $user) {
+//            if ($user['accessToken'] === $token) {
+//                return new static($user);
+//            }
+//        }
+//
+//        return null;
+        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
     }
 
     /**
      * Finds user by username
      *
-     * @param string $username
+     * @param string $login
      * @return static|null
      */
-
-
+    public static function findByUsername(string $login): static
+    {
+        return static::findOne(['login'=>$login]);
+    }
     /**
      * {@inheritdoc}
      */
     public function getId()
     {
-        return (string)$this->id;
+        return (string)$this->_id;
     }
 
     /**
@@ -100,15 +117,15 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getAuthKey(): ?string
     {
-        return $this->authKey;
+        return $this->auth_key;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function validateAuthKey($authKey): ?bool
+    public function validateAuthKey($auth_key): ?bool
     {
-        return $this->authKey === $authKey;
+        return $this->auth_key === $auth_key;
     }
 
     /**
@@ -119,6 +136,23 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      */
     public function validatePassword($password): bool
     {
-        return $this->password === $password;
+        return Yii::$app->security->validatePassword($password,$this->password_hash);
+        //return $this->password === $password;
+    }
+
+    public function setPassword($password): void
+    {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    public function beforeSave($insert): bool
+    {
+        if(parent::beforeSave($insert)){
+            if($this->isNewRecord){
+                $this->auth_key = \Yii::$app->security->generateRandomString();
+            }
+            return true;
+        }
+        return false;
     }
 }

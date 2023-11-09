@@ -155,4 +155,14 @@ class SiteController extends Controller
     {
         return $this->render('basket');
     }
+
+    public function actionCab()
+    {
+        return $this->render('cab');
+    }
+
+    public function actionSing()
+    {
+        return$this->render('sing');
+    }
 }
